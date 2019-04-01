@@ -121,6 +121,6 @@ def case_modifier(request):
         elif parser == 'lower':
             result = data.lower()
         elif parser == 'title':
-            result = data.capitalize()
+            result = data.title()
 
     return render(request, 'case_modifier.html', context={'result': result})
