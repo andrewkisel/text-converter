@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block navitems %}
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'delimiter_modifier' %}">Delimiter modifier</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'case_modifier' %}">Case Modifier</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">Help</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">About</a>
+</li>
+{% endblock %}
+{% block jumbo %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container">
+    <h1 class="display-6">Welcome!</h1>
+    <p class="lead">This is a multifunctional text converter. Supports paragraph or comma separated values only. Visit about page for additional details.</p>
+  </div>
+</div>
+{% endblock %}
+{% block parser %}
+<div class="col-3">
+    <select name="parser_select" class="custom-select custom-select-sm">
+        <option disabled selected>Parser select</option>
+        <option value="CC-CN">Country code -> Country name</option>
+        <option value="SC-SN">State code -> State name</option>
+        <option value="CN-CC">Country name -> Country code</option>
+        <option value="SN-SC">State name -> State code</option>
+        <option value="ZC-CT">Zip code -> City</option>
+    </select>
+</div>
+{% endblock %}
+{% block errors %}
+{% if not_found > 0 %}
+<div class="col-2">
+    <strong>Not Found: </strong>{{ not_found }}
+</div>
+{% endif %}
+{% endblock %}

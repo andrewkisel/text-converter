@@ -1,0 +1,43 @@
+{% extends 'base.html'%}
+{% block title %}
+<title>Delimiter Modifier</title>
+{% endblock %}
+{% block navitems %}
+<li class="nav-item">
+    <a class="nav-link active" href="{% url 'delimiter_modifier' %}">Delimiter modifier</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="{% url 'case_modifier' %}">Case Modifier</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="">Help</a>
+</li>
+<li class="nav-item">
+    <a class="nav-link" href="#">About</a>
+</li>
+{% endblock %}
+{% block jumbo %}
+<br><br>
+{% endblock %}
+{% block parser %}
+<div class="col-2">
+    <select name="parser_from" class="custom-select custom-select-sm">
+        <option disabled selected>From</option>
+        <option value="newline">Newline</option>
+        <option value="comma">Comma</option>
+        <option value="tab">Tab</option>
+        <option value="space">Space</option>
+        <option value="pipe">Pipe</option>
+    </select>
+</div>
+<div class="col-2">
+    <select name="parser_to" class="custom-select custom-select-sm">
+        <option disabled selected>To</option>
+        <option value="newline">Newline</option>
+        <option value="comma">Comma</option>
+        <option value="tab">Tab</option>
+        <option value="space">Space</option>
+        <option value="pipe">Pipe</option>
+    </select>
+</div>
+{% endblock %}
