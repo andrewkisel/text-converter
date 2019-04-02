@@ -39,55 +39,61 @@ def converter(data, mapping):
     if '\n' in data:
         line = data.split('\n')  # Make a list of strings.
         for i in range(len(line)):  # Loop through all the items in the list, make necessary changes.
+            # Key to look for.
+            key = line[i].upper().strip()
             # Check if there is no match for the exact key.
-            if not mapping.get(line[i]):
+            if not mapping.get(key):
                 # Try to look for possible matches.
-                cur_key = ''.join(get_close_matches(line[i].upper().strip(), mapping, n=1))
+                close_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.8))
                 # In case not found - return 'Unable to find'.
-                if cur_key is '' or line[i].isdigit():
+                if close_key is '' or key.isdigit():
                     line[i] = 'UNABLE TO FIND'
                     not_found_count += 1
                     continue
                 # Otherwise - look for value using the key we get above.
-                line[i] = mapping.get(cur_key).upper()
+                line[i] = mapping.get(close_key)
             # If there is a match for the exact key - get the value here.
             else:
-                line[i] = mapping.get(line[i].upper().strip())
+                line[i] = mapping.get(key)
         res = '\n'.join(line)  # Convert to string, separator '\n'
     # When comma is a separator.
     elif ',' in data:
         line = data.split(',')  # Make a list of strings. Separator - ','
         for i in range(len(line)):  # Loop through all the items in the list, make necessary changes.
+            # Key to look for.
+            key = line[i].upper().strip()
             # Check if there is no match for the exact key.
-            if not mapping.get(line[i]):
+            if not mapping.get(key):
                 # Try to look for possible matches.
-                cur_key = ''.join(get_close_matches(line[i].upper().strip(), mapping, n=1))
+                cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.8))
                 # In case not found - return 'Unable to find'
-                if cur_key is '' or line[i].isdigit():
+                if cur_key is '' or key.isdigit():
                     line[i] = 'UNABLE TO FIND'
                     not_found_count += 1
                     continue
                 # Otherwise - look for value using the key we get above.
-                line[i] = mapping.get(cur_key).upper()
+                line[i] = mapping.get(cur_key)
             # If there is a match for the exact key - get the value here.
             else:
-                line[i] = mapping.get(line[i].upper().strip())
+                line[i] = mapping.get(key)
         res = ', '.join(line)  # Convert to string, separator ', '
     # When there is only one element.
     elif len(data.split()) == 1 or '' in data:
+        # Key to look for.
+        key = data.upper().strip()
         # Check if there is no match for the exact key.
-        if not mapping.get(data):
+        if not mapping.get(key):
             # Try to look for possible matches.
-            cur_key = ''.join(get_close_matches(data.upper().strip(), mapping, n=1))
+            cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.8))
             # In case not found - return 'Unable to find'.
-            if cur_key is '' or data.isdigit():
+            if cur_key is '' or key.isdigit():
                 not_found_count += 1
                 return 'UNABLE TO FIND', not_found_count
             # Otherwise - look for value using the key we get above.
-            res = mapping.get(cur_key).upper()
+            res = mapping.get(cur_key)
         # If there is a match for the exact key - get the value here.
         else:
-            res = mapping.get(data.upper().strip())
+            res = mapping.get(key)
     else:
         res = 'Only comma and paragraph separated values are supported! Check your input.'
     return res, not_found_count
