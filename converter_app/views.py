@@ -44,7 +44,7 @@ def converter(data, mapping):
             # Check if there is no match for the exact key.
             if not mapping.get(key):
                 # Try to look for possible matches.
-                close_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.8))
+                close_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
                 # In case not found - return 'Unable to find'.
                 if close_key is '' or key.isdigit():
                     line[i] = 'UNABLE TO FIND'
@@ -65,7 +65,7 @@ def converter(data, mapping):
             # Check if there is no match for the exact key.
             if not mapping.get(key):
                 # Try to look for possible matches.
-                cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.8))
+                cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
                 # In case not found - return 'Unable to find'
                 if cur_key is '' or key.isdigit():
                     line[i] = 'UNABLE TO FIND'
@@ -84,7 +84,7 @@ def converter(data, mapping):
         # Check if there is no match for the exact key.
         if not mapping.get(key):
             # Try to look for possible matches.
-            cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.8))
+            cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
             # In case not found - return 'Unable to find'.
             if cur_key is '' or key.isdigit():
                 not_found_count += 1
