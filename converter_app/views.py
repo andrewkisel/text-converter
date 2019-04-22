@@ -152,12 +152,13 @@ def fuzzy_converter(data, mapping):
 def delimiter_modifier(request):
     result = None
     if request.method == 'POST':
-        parser_decode = {'comma': ',', 'tab': '\t', 'space': ' ', 'pipe': '|', 'newline': '\n'}
+        parser_decode = {'comma': ',', 'tab': '\t', 'space': ' ', 'pipe': '|', 'newline': '\r\n'}
         # Get data and selected parsers.
         data = request.POST.get('raw_data')
         parser_from = request.POST.get('parser_from')
         parser_to = request.POST.get('parser_to')
         lines = data.split(parser_decode.get(parser_from))
+        print(lines)
         result = parser_decode.get(parser_to).join(lines)
     return render(request, 'delimiter_mod.html', context={'result': result})
 
