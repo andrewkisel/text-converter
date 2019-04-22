@@ -32,6 +32,12 @@
         <option value="ZC-CT">Zip code -> City</option>
     </select>
 </div>
+<div class="col-2">
+    <input name="fuzzy" class="form-check-input" type="checkbox" value="true" id="fuzzy_search">
+    <label class="form-check-label" for="fuzzy_search">
+    Fuzzy (Slower)
+    </label>
+</div>
 {% endblock %}
 {% block errors %}
 {% if not_found > 0 %}

@@ -12,20 +12,36 @@ def index(request):
         # Get data and selected parser.
         data = request.POST.get('raw_data')
         parser = request.POST.get('parser_select')
+        fuzzy = request.POST.get('fuzzy')
         # Depending on the type of parser selected - perform transforms.
         if 'CC-CN' == parser:
-            result, not_found = converter(data, CC_MAPPING)
+            if fuzzy == 'true':
+                result, not_found = fuzzy_converter(data, CC_MAPPING)
+            else:
+                result, not_found = converter(data, CC_MAPPING)
         elif 'SC-SN' == parser:
-            result, not_fount = converter(data, STATE_MAPPING)
+            if fuzzy == 'true':
+                result, not_found = fuzzy_converter(data, STATE_MAPPING)
+            else:
+                result, not_found = converter(data, STATE_MAPPING)
         elif 'CN-CC' == parser:
             # Flip the keys/values in the dict.
             swap_mapping = {v: k for k, v in CC_MAPPING.items()}
-            result, not_found = converter(data, swap_mapping)
+            if fuzzy == 'true':
+                result, not_found = fuzzy_converter(data, swap_mapping)
+            else:
+                result, not_found = converter(data, swap_mapping)
         elif 'SN-SC' == parser:
             swap_mapping = {v: k for k, v in STATE_MAPPING.items()}
-            result, not_found = converter(data, swap_mapping)
+            if fuzzy == 'true':
+                result, not_found = fuzzy_converter(data, swap_mapping)
+            else:
+                result, not_found = converter(data, swap_mapping)
         elif 'ZC-CT' == parser:
-            result, not_found = converter(data, ZIP_CITY)
+            if fuzzy == 'true':
+                result, not_found = fuzzy_converter(data, ZIP_CITY)
+            else:
+                result, not_found = converter(data, ZIP_CITY)
         # In case no parser is selected.
         else:
             result = 'Please select the parser type!'
@@ -41,17 +57,11 @@ def converter(data, mapping):
         for i in range(len(line)):  # Loop through all the items in the list, make necessary changes.
             # Key to look for.
             key = line[i].upper().strip()
-            # Check if there is no match for the exact key.
+            # In case not found - return 'Unable to find'.
             if not mapping.get(key):
-                # Try to look for possible matches.
-                close_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
-                # In case not found - return 'Unable to find'.
-                if close_key is '' or key.isdigit():
-                    line[i] = 'UNABLE TO FIND'
-                    not_found_count += 1
-                    continue
-                # Otherwise - look for value using the key we get above.
-                line[i] = mapping.get(close_key)
+                line[i] = 'UNABLE TO FIND'
+                not_found_count += 1
+                continue
             # If there is a match for the exact key - get the value here.
             else:
                 line[i] = mapping.get(key)
@@ -62,17 +72,11 @@ def converter(data, mapping):
         for i in range(len(line)):  # Loop through all the items in the list, make necessary changes.
             # Key to look for.
             key = line[i].upper().strip()
-            # Check if there is no match for the exact key.
+            # In case not found - return 'Unable to find'
             if not mapping.get(key):
-                # Try to look for possible matches.
-                cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
-                # In case not found - return 'Unable to find'
-                if cur_key is '' or key.isdigit():
-                    line[i] = 'UNABLE TO FIND'
-                    not_found_count += 1
-                    continue
-                # Otherwise - look for value using the key we get above.
-                line[i] = mapping.get(cur_key)
+                line[i] = 'UNABLE TO FIND'
+                not_found_count += 1
+                continue
             # If there is a match for the exact key - get the value here.
             else:
                 line[i] = mapping.get(key)
@@ -81,19 +85,64 @@ def converter(data, mapping):
     elif len(data.split()) == 1 or '' in data:
         # Key to look for.
         key = data.upper().strip()
-        # Check if there is no match for the exact key.
+        # In case not found - return 'Unable to find'.
         if not mapping.get(key):
-            # Try to look for possible matches.
-            cur_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
-            # In case not found - return 'Unable to find'.
-            if cur_key is '' or key.isdigit():
-                not_found_count += 1
-                return 'UNABLE TO FIND', not_found_count
-            # Otherwise - look for value using the key we get above.
-            res = mapping.get(cur_key)
+            not_found_count += 1
+            return 'UNABLE TO FIND', not_found_count
         # If there is a match for the exact key - get the value here.
         else:
             res = mapping.get(key)
+    else:
+        res = 'Only comma and paragraph separated values are supported! Check your input.'
+    return res, not_found_count
+
+
+# Handles the conversion when fuzzy logic is selected.
+def fuzzy_converter(data, mapping):
+    not_found_count = 0
+    if '\n' in data:
+        line = data.split('\n')  # Make a list of strings.
+        for i in range(len(line)):  # Loop through all the items in the list, make necessary changes.
+            # Key to look for.
+            key = line[i].upper().strip()
+            # Try to look for possible matches.
+            close_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
+            # In case not found - return 'Unable to find'.
+            if close_key is '' or key.isdigit():
+                line[i] = 'UNABLE TO FIND'
+                not_found_count += 1
+                continue
+            # Otherwise - look for value using the key we get above.
+            line[i] = mapping.get(close_key)
+        res = '\n'.join(line)  # Convert to string, separator '\n'
+    # When comma is a separator.
+    elif ',' in data:
+        line = data.split(',')  # Make a list of strings. Separator - ','
+        for i in range(len(line)):  # Loop through all the items in the list, make necessary changes.
+            # Key to look for.
+            key = line[i].upper().strip()
+            # Try to look for possible matches.
+            close_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
+            # In case not found - return 'Unable to find'
+            if close_key is '' or key.isdigit():
+                line[i] = 'UNABLE TO FIND'
+                not_found_count += 1
+                continue
+            # Otherwise - look for value using the key we get above.
+            line[i] = mapping.get(close_key)
+        res = ', '.join(line)  # Convert to string, separator ', '
+    # When there is only one element.
+    elif len(data.split()) == 1 or '' in data:
+        # Key to look for.
+        key = data.upper().strip()
+        # Try to look for possible matches.
+        close_key = ''.join(get_close_matches(key, mapping, n=1, cutoff=.7))
+        # In case not found - return 'Unable to find'.
+        if close_key is '' or key.isdigit():
+            not_found_count += 1
+            return 'UNABLE TO FIND', not_found_count
+        # Otherwise - look for value using the key we get above.
+        res = mapping.get(close_key)
     else:
         res = 'Only comma and paragraph separated values are supported! Check your input.'
     return res, not_found_count
@@ -103,7 +152,7 @@ def converter(data, mapping):
 def delimiter_modifier(request):
     result = None
     if request.method == 'POST':
-        parser_decode = {'comma': ',', 'tab': '\t', 'space': ' ', 'pipe': '|', 'newline': None}
+        parser_decode = {'comma': ',', 'tab': '\t', 'space': ' ', 'pipe': '|', 'newline': '\n'}
         # Get data and selected parsers.
         data = request.POST.get('raw_data')
         parser_from = request.POST.get('parser_from')
