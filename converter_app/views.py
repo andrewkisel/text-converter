@@ -158,7 +158,7 @@ def delimiter_modifier(request):
         parser_from = request.POST.get('parser_from')
         parser_to = request.POST.get('parser_to')
         lines = data.split(parser_decode.get(parser_from))
-        print(lines)
+        lines = [line.strip() for line in lines]
         result = parser_decode.get(parser_to).join(lines)
     return render(request, 'delimiter_mod.html', context={'result': result})
 
